@@ -2,9 +2,7 @@ version: '3.0'
 services:
     rabbit:
         image: rabbitmq:3-management
-        expose:
-          - 15672
-          - 5762
-          - 5761
         ports:
           - "8080:15672"
+          - "32777:5672"
+        hostname: "rabbit"
