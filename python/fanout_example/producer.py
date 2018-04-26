@@ -5,23 +5,26 @@ rabbit_connection = pika.BlockingConnection(pika.ConnectionParameters('0.0.0.0',
 
 channel = rabbit_connection.channel()
 
-exchange_name = queue_name = 'basic_fanout'
+exchange_name = "fanout_demo"
+queue_name = "fanout_queue"
+
+channel.confirm_delivery()
 
 channel.exchange_declare(exchange=exchange_name,
                          exchange_type='fanout')
 
 
 # DECLARE 3 QUEUES
-def queue_declarator(channel, num):
+def queue_declaration(channel, num):
     channel.queue_declare(queue_name + "_" + str(num), durable=True)
-    channel.queue_bind(queue_name + "_" + str(num), 'basic_fanout', routing_key='')
+    channel.queue_bind(queue_name + "_" + str(num), exchange_name, routing_key='')
 
 
-queue_declarator(channel, 1)
-queue_declarator(channel, 2)
-queue_declarator(channel, 3)
+queue_declaration(channel, 1)
+queue_declaration(channel, 2)
+queue_declaration(channel, 3)
 
-for i in range(100):
+for i in range(1000):
     message = 'Hello World, this is message number ' + str(i)
 
     channel.basic_publish(exchange=exchange_name, body=message, routing_key='')

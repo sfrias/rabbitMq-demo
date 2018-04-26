@@ -7,18 +7,18 @@ rabbit_connection = pika.BlockingConnection(pika.ConnectionParameters('0.0.0.0',
 
 channel = rabbit_connection.channel()
 
-channel.queue_declare('basic', durable=True)
+#channel.queue_declare('basic', durable=True)
 
 print('[x] Waiting for messages, press ctrl+C to stop')
 
-
+channel.basic_qos(prefetch_count=200)
 def callback(channel, method, properties, body):
     message_dict = json.loads(str(body.decode("utf-8")))
     if message_dict.get('id') % 2 == 0:
         channel.basic_ack(delivery_tag=method.delivery_tag)
         print('CONFIRMED -> message: ' + str(body.decode("utf-8")))
     else:
-        channel.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+        channel.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
         print('DENIED -> message: ' + str(body.decode("utf-8")))
     # time.sleep(1)
 
